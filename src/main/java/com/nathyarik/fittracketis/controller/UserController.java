@@ -7,6 +7,8 @@ import com.nathyarik.fittracketis.entity.User;
 import com.nathyarik.fittracketis.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -44,8 +46,18 @@ public class UserController {
     @PutMapping("/{id}/profile")
     public ResponseEntity<?> updateProfile(@PathVariable UUID id, @RequestBody UserProfileUpdateDTO dto) {
         try {
-            User updatedUser = userService.updateProfile(id, dto);
-            return ResponseEntity.ok(updatedUser);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentEmail = authentication.getName();
+
+            User targetUser = userService.getUserById(id);
+
+            if (!targetUser.getEmail().equals(currentEmail)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Access denied: You can only update your own account.");
+            }
+
+            targetUser = userService.updateProfile(id, dto);
+            return ResponseEntity.ok(targetUser);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -54,8 +66,18 @@ public class UserController {
     @PutMapping("/{id}/preferences")
     public ResponseEntity<?> updatePreferences(@PathVariable UUID id, @RequestBody UserPreferencesUpdateDTO dto) {
         try {
-            User updatedUser = userService.updatePreferences(id, dto);
-            return ResponseEntity.ok(updatedUser);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentEmail = authentication.getName();
+
+            User targetUser = userService.getUserById(id);
+
+            if (!targetUser.getEmail().equals(currentEmail)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Access denied: You can only update your own account.");
+            }
+
+            targetUser = userService.updatePreferences(id, dto);
+            return ResponseEntity.ok(targetUser);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -64,8 +86,19 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentEmail = authentication.getName();
+
+            User targetUser = userService.getUserById(id);
+
+            if (!targetUser.getEmail().equals(currentEmail)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Access denied: You can only delete your own account.");
+            }
+
             userService.deleteUser(id);
             return ResponseEntity.noContent().build(); // 204
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
