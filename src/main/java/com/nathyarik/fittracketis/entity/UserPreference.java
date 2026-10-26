@@ -2,6 +2,7 @@ package com.nathyarik.fittracketis.entity;
 
 import jakarta.persistence.*;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "user_preferences")
@@ -18,6 +19,7 @@ public class UserPreference {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     // Constructors
