@@ -1,7 +1,8 @@
 package com.nathyarik.fittracketis.controller;
 
+import com.nathyarik.fittracketis.dto.UserPreferencesUpdateDTO;
 import com.nathyarik.fittracketis.dto.UserRegistrationDTO;
-import com.nathyarik.fittracketis.dto.UserUpdateDTO;
+import com.nathyarik.fittracketis.dto.UserProfileUpdateDTO;
 import com.nathyarik.fittracketis.entity.User;
 import com.nathyarik.fittracketis.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -40,10 +41,20 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable UUID id, @RequestBody UserUpdateDTO dto) {
+    @PutMapping("/{id}/profile")
+    public ResponseEntity<?> updateProfile(@PathVariable UUID id, @RequestBody UserProfileUpdateDTO dto) {
         try {
-            User updatedUser = userService.updateUser(id, dto);
+            User updatedUser = userService.updateProfile(id, dto);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/preferences")
+    public ResponseEntity<?> updatePreferences(@PathVariable UUID id, @RequestBody UserPreferencesUpdateDTO dto) {
+        try {
+            User updatedUser = userService.updatePreferences(id, dto);
             return ResponseEntity.ok(updatedUser);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

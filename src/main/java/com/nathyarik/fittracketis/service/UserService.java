@@ -1,7 +1,8 @@
 package com.nathyarik.fittracketis.service;
 
+import com.nathyarik.fittracketis.dto.UserPreferencesUpdateDTO;
 import com.nathyarik.fittracketis.dto.UserRegistrationDTO;
-import com.nathyarik.fittracketis.dto.UserUpdateDTO;
+import com.nathyarik.fittracketis.dto.UserProfileUpdateDTO;
 import com.nathyarik.fittracketis.entity.User;
 import com.nathyarik.fittracketis.entity.UserPreference;
 import com.nathyarik.fittracketis.repository.UserRepository;
@@ -43,14 +44,20 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
-    public User updateUser(UUID id, UserUpdateDTO dto) {
+    public User updateProfile(UUID id, UserProfileUpdateDTO dto) {
         User user = getUserById(id);
 
         if (dto.getName() != null) {
             user.setName(dto.getName());
         }
 
+        return userRepository.save(user);
+    }
+
+    public User updatePreferences(UUID id, UserPreferencesUpdateDTO dto) {
+        User user = getUserById(id);
         UserPreference pref = user.getPreference();
+
         if (pref == null) {
             pref = new UserPreference();
             pref.setUser(user);
