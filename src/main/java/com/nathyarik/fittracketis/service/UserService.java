@@ -6,6 +6,7 @@ import com.nathyarik.fittracketis.dto.UserProfileUpdateDTO;
 import com.nathyarik.fittracketis.entity.User;
 import com.nathyarik.fittracketis.entity.UserPreference;
 import com.nathyarik.fittracketis.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -14,9 +15,11 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User registerUser(UserRegistrationDTO dto) {
@@ -27,7 +30,8 @@ public class UserService {
         User user = new User();
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword()); // to be hashed
+        String hashedPassword = passwordEncoder.encode(dto.getPassword());
+        user.setPassword(hashedPassword);
 
         UserPreference preference = new UserPreference();
         preference.setFitnessGoal(dto.getFitnessGoal());
